@@ -17,7 +17,7 @@ body{
     min-height:100vh;
 }
 
-.gift-card{
+.card{
     width:90%;
     max-width:420px;
     background:rgba(255,255,255,0.08);
@@ -26,122 +26,85 @@ body{
     text-align:center;
 }
 
-#bouquetImage{
+#img{
     width:100%;
     border-radius:12px;
-    margin-bottom:15px;
     min-height:200px;
     object-fit:cover;
-    background:rgba(255,255,255,0.05);
-    display:none; /* важно: старт скрыт */
-}
-
-a{
-    display:block;
-    margin:8px 0;
-    color:#00c6ff;
-    text-decoration:none;
+    background:#111;
+    display:none;
 }
 </style>
+
 </head>
 
 <body>
 
-<div class="gift-card">
+<div class="card">
 
-    <img id="bouquetImage">
+    <img id="img">
 
     <h2>Для тебя 💛</h2>
 
-    <p id="greetingText"></p>
-    <h3 id="trackName"></h3>
-    <p id="authorText"></p>
+    <p id="text"></p>
+    <h3 id="title"></h3>
+    <p id="author"></p>
 
-    <a id="youtubeBtn" target="_blank">▶ YouTube</a>
-    <a id="yandexBtn" target="_blank">💿 Яндекс Музыка</a>
+    <a id="yt" target="_blank">YouTube</a>
+    <a id="ym" target="_blank">Music</a>
 
 </div>
 
 <script>
 
-function safeDecode(str){
+/* 🔐 decode */
+function decode(str){
     try{
         const pad = '='.repeat((4 - str.length % 4) % 4);
         return JSON.parse(
             decodeURIComponent(
-                atob((str + pad).replace(/-/g,'+').replace(/_/g,'/'))
+                atob((str+pad).replace(/-/g,'+').replace(/_/g,'/'))
             )
         );
-    } catch(e){
-        console.log("Decode error:", e);
+    }catch(e){
         return null;
     }
 }
 
-function loadGift(){
+function load(){
 
-    const data = safeDecode(location.hash.slice(1));
+    const data = decode(location.hash.slice(1));
 
     if(!data){
-        document.body.innerHTML = "<h2 style='text-align:center'>❌ Подарок не найден</h2>";
+        document.body.innerHTML = "<h2>Ошибка ссылки</h2>";
         return;
     }
 
-    // TEXT
-    document.getElementById("greetingText").textContent = data.x || "";
-    document.getElementById("trackName").textContent = data.t || "";
-    document.getElementById("authorText").textContent = data.a || "";
+    document.getElementById("text").textContent = data.x || "";
+    document.getElementById("title").textContent = data.t || "";
+    document.getElementById("author").textContent = data.a || "";
 
-    // LINKS
-    const yt = document.getElementById("youtubeBtn");
-    const ym = document.getElementById("yandexBtn");
+    const img = document.getElementById("img");
 
-    if(data.y){
-        yt.href = data.y;
-    } else {
-        yt.style.display = "none";
-    }
+    /* 💐 SYSTEM + BASE64 ONLY */
+    let src = data.i || "";
 
-    if(data.m){
-        ym.href = data.m;
-    } else {
-        ym.style.display = "none";
-    }
+    if(src){
 
-    // IMAGE (СТАБИЛЬНЫЙ ФИКС)
-    const img = document.getElementById("bouquetImage");
-
-    // reset state
-    img.style.display = "none";
-    img.removeAttribute("src");
-
-    setTimeout(() => {
-
-        if(!data.i) return;
-
-        let src = "";
-
-        if(data.i.startsWith("http") || data.i.startsWith("data:")){
-            src = data.i;
-        } else {
-            src = "images/bouquets/" + data.i + ".webp";
-        }
-
-        img.onload = () => {
-            img.style.display = "block";
-        };
-
-        img.onerror = () => {
-            console.log("Image failed:", src);
-            img.style.display = "none";
-        };
+        img.onload = () => img.style.display = "block";
+        img.onerror = () => img.style.display = "none";
 
         img.src = src;
+    }
 
-    }, 50);
+    const yt = document.getElementById("yt");
+    const ym = document.getElementById("ym");
+
+    if(data.y) yt.href = data.y; else yt.style.display="none";
+    if(data.m) ym.href = data.m; else ym.style.display="none";
 }
 
-window.addEventListener("DOMContentLoaded", loadGift);
+window.onload = load;
 
 </script>
 
