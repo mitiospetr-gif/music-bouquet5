@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Music Bouquet</title>
+<title>Music Bouquet v9</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="dark-theme">
+<body>
 
 <div class="container">
 
@@ -17,7 +17,7 @@
     <p>Создай музыкальный подарок</p>
 </header>
 
-<!-- 💐 БУКЕТЫ -->
+<!-- 💐 BOUQUETS -->
 <div class="bouquet-grid">
 
     <div class="bouquet" data-bouquet="classic1">
@@ -46,7 +46,7 @@
 
 </div>
 
-<!-- 📝 ФОРМА -->
+<!-- 📝 FORM -->
 <div class="form">
 
     <input id="title" placeholder="Название трека">
@@ -70,10 +70,17 @@
 <script src="app.js"></script>
 
 <script>
-let selectedBouquet = null;
-let lastImage = null;
+/* =========================
+   STATE
+========================= */
 
-/* 💐 выбор букета */
+let selectedBouquet = null;
+let uploadedImage = null;
+
+/* =========================
+   BOUQUET SELECT
+========================= */
+
 document.querySelectorAll(".bouquet").forEach(el => {
     el.addEventListener("click", () => {
 
@@ -84,12 +91,14 @@ document.querySelectorAll(".bouquet").forEach(el => {
 
         selectedBouquet = el.dataset.bouquet;
 
-        console.log("Selected bouquet:", selectedBouquet);
+        console.log("Bouquet selected:", selectedBouquet);
     });
 });
 
+/* =========================
+   FILE UPLOAD (BASE64)
+========================= */
 
-/* 📁 галерея */
 document.getElementById("fileInput").addEventListener("change", (e) => {
 
     const file = e.target.files[0];
@@ -98,36 +107,45 @@ document.getElementById("fileInput").addEventListener("change", (e) => {
     const reader = new FileReader();
 
     reader.onload = (ev) => {
-        lastImage = ev.target.result;
-        console.log("Loaded image from gallery");
+        uploadedImage = ev.target.result;
+        console.log("Image loaded");
     };
 
     reader.readAsDataURL(file);
 });
 
+/* =========================
+   CREATE LINK
+========================= */
 
-/* 🔗 создать ссылку */
 document.getElementById("createBtn").onclick = () => {
 
     const data = {
-        title: document.getElementById("title").value,
-        author: document.getElementById("author").value,
-        text: document.getElementById("text").value,
-        youtube: document.getElementById("youtube").value,
-        yandex: document.getElementById("yandex").value,
+        t: document.getElementById("title").value,
+        a: document.getElementById("author").value,
+        x: document.getElementById("text").value,
+        y: document.getElementById("youtube").value,
+        m: document.getElementById("yandex").value,
 
-        // 💐 ВАЖНО: приоритет
-        image: lastImage ? lastImage : selectedBouquet
+        // 💐 priority: uploaded image > bouquet
+        i: uploadedImage ? uploadedImage : selectedBouquet
     };
 
-    const link = createShareLink(data);
+    const encoded = btoa(encodeURIComponent(JSON.stringify(data)))
+        .replace(/\+/g,"-")
+        .replace(/\//g,"_")
+        .replace(/=/g,"");
+
+    const link = location.origin + "/gift.html#" + encoded;
 
     document.getElementById("result").textContent = link;
     window.generatedLink = link;
 };
 
+/* =========================
+   COPY LINK
+========================= */
 
-/* 📋 copy */
 document.getElementById("copyBtn").onclick = async () => {
     await navigator.clipboard.writeText(window.generatedLink || "");
     alert("Ссылка скопирована");

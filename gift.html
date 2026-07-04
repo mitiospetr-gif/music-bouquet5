@@ -1,124 +1,55 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gift</title>
+<title>Your Gift</title>
 
-<style>
-body{
-    margin:0;
-    font-family:Arial;
-    background:#0f172a;
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-}
-
-.card{
-    width:90%;
-    max-width:420px;
-    background:rgba(255,255,255,0.08);
-    padding:20px;
-    border-radius:16px;
-    text-align:center;
-}
-
-#img{
-    width:100%;
-    border-radius:12px;
-    min-height:200px;
-    object-fit:cover;
-    background:#111;
-    display:none;
-}
-</style>
-
+<link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="gift-page">
 
-<div class="card">
+<div class="gift-container">
 
-    <img id="img">
+    <div class="gift-card">
 
-    <h2>Для тебя 💛</h2>
+        <!-- 💐 IMAGE -->
+        <div class="bouquet-wrapper">
+            <img id="img" class="bouquet-image" src="">
+        </div>
 
-    <p id="text"></p>
-    <h3 id="title"></h3>
-    <p id="author"></p>
+        <!-- 💛 CONTENT -->
+        <div class="gift-content">
 
-    <a id="yt" target="_blank">YouTube</a>
-    <a id="ym" target="_blank">Music</a>
+            <h2 class="greeting-title">Для тебя 💛</h2>
+
+            <p id="text" class="greeting-text"></p>
+
+            <h3 id="title" class="track-name"></h3>
+
+            <div class="links-section">
+
+                <a id="yt" class="btn-platform youtube" target="_blank">
+                    ▶ YouTube
+                </a>
+
+                <a id="ym" class="btn-platform yandex" target="_blank">
+                    🎵 Яндекс Музыка
+                </a>
+
+            </div>
+
+            <p id="author" class="author-text"></p>
+
+        </div>
+
+    </div>
 
 </div>
 
-<script>
-
-/* decode */
-function decode(str){
-    try{
-        const pad = '='.repeat((4 - str.length % 4) % 4);
-        return JSON.parse(
-            decodeURIComponent(
-                atob((str+pad).replace(/-/g,'+').replace(/_/g,'/'))
-            )
-        );
-    }catch(e){
-        console.log(e);
-        return null;
-    }
-}
-
-function load(){
-
-    const data = decode(location.hash.slice(1));
-
-    if(!data){
-        document.body.innerHTML = "<h2>Ошибка ссылки</h2>";
-        return;
-    }
-
-    document.getElementById("text").textContent = data.x || "";
-    document.getElementById("title").textContent = data.t || "";
-    document.getElementById("author").textContent = data.a || "";
-
-    const img = document.getElementById("img");
-
-    let src = data.i || "";
-
-    if(src){
-
-        // 💐 base64 (галерея)
-        if(src.startsWith("data:")){
-            img.src = src;
-        }
-
-        // 💐 системные букеты
-        else{
-            src = "images/bouquets/" + src + ".webp";
-            img.src = src;
-        }
-
-        img.onload = () => img.style.display = "block";
-        img.onerror = () => {
-            console.log("Image not found:", src);
-            img.style.display = "none";
-        };
-    }
-
-    const yt = document.getElementById("yt");
-    const ym = document.getElementById("ym");
-
-    if(data.y) yt.href = data.y; else yt.style.display="none";
-    if(data.m) ym.href = data.m; else ym.style.display="none";
-}
-
-window.onload = load;
-
-</script>
+<!-- JS ENGINE -->
+<script src="app.js"></script>
 
 </body>
 </html>

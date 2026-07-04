@@ -1,100 +1,105 @@
-﻿let selectedBouquet = null;
-let userImages = JSON.parse(localStorage.getItem("userImages") || "[]");
+﻿﻿
+/* =========================
+   DECODE HASH
+========================= */
 
-/* 💐 выбор букета */
-window.addEventListener("DOMContentLoaded", () => {
+function decodeHash(str){
+    try{
+        const pad = '='.repeat((4 - str.length % 4) % 4);
 
-    document.querySelectorAll(".bouquet").forEach(el => {
+        const json = decodeURIComponent(
+            atob((str + pad).replace(/-/g,'+').replace(/_/g,'/'))
+        );
 
-        el.addEventListener("click", () => {
+        return JSON.parse(json);
 
-            document.querySelectorAll(".bouquet")
-                .forEach(b => b.classList.remove("active"));
-
-            el.classList.add("active");
-
-            selectedBouquet = el.dataset.bouquet;
-
-        });
-
-    });
-
-});
-
-
-/* 📁 загрузка из галереи (BASE64) */
-const fileInput = document.getElementById("fileInput");
-
-if (fileInput) {
-    fileInput.addEventListener("change", (e) => {
-
-        [...e.target.files].forEach(file => {
-
-            const reader = new FileReader();
-
-            reader.onload = (ev) => {
-
-                userImages.push(ev.target.result);
-                localStorage.setItem("userImages", JSON.stringify(userImages));
-
-            };
-
-            reader.readAsDataURL(file);
-        });
-
-    });
+    } catch(e){
+        console.log("Decode error:", e);
+        return null;
+    }
 }
 
+/* =========================
+   LOAD GIFT PAGE
+========================= */
 
-/* 🔗 SHARE LINK (без внешних сервисов) */
-function createShareLink(data) {
+function loadGift(){
 
-    const clean = {};
+    const hash = location.hash.slice(1);
+    if(!hash) return;
 
-    if (data.title) clean.t = data.title;
-    if (data.author) clean.a = data.author;
-    if (data.text) clean.x = data.text;
-    if (data.youtube) clean.y = data.youtube;
-    if (data.yandex) clean.m = data.yandex;
+    const data = decodeHash(hash);
 
-    /* 💐 IMAGE PRIORITY */
-    if (data.image) {
-        clean.i = data.image; // системный букет
-    }
-    else if (userImages.length > 0) {
-        clean.i = userImages[userImages.length - 1]; // base64
+    if(!data){
+        document.body.innerHTML = "<h2 style='color:white;text-align:center'>Ошибка ссылки</h2>";
+        return;
     }
 
-    const encoded = btoa(encodeURIComponent(JSON.stringify(clean)))
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=/g, "");
+    /* =========================
+       TEXT FIELDS
+    ========================= */
 
-    return location.origin + "/gift.html#" + encoded;
-}
-
-
-/* ✨ CREATE */
-document.getElementById("createBtn").onclick = () => {
-
-    const data = {
-        title: document.getElementById("title")?.value || "",
-        author: document.getElementById("author")?.value || "",
-        text: document.getElementById("text")?.value || "",
-        youtube: document.getElementById("youtube")?.value || "",
-        yandex: document.getElementById("yandex")?.value || "",
-        image: selectedBouquet || null
+    const set = (id, value) => {
+        const el = document.getElementById(id);
+        if(el) el.textContent = value || "";
     };
 
-    const link = createShareLink(data);
+    set("title", data.t);
+    set("text", data.x);
+    set("author", data.a);
 
-    document.getElementById("result").textContent = link;
-    window.generatedLink = link;
-};
+    /* =========================
+       IMAGE LOGIC (CRITICAL FIX)
+    ========================= */
 
+    const img = document.getElementById("img");
 
-/* 📋 COPY */
-document.getElementById("copyBtn").onclick = async () => {
-    await navigator.clipboard.writeText(window.generatedLink || "");
-    alert("Ссылка скопирована");
-};
+    if(data.i){
+
+        let src = data.i;
+
+        // 💡 base64 image
+        if(src.startsWith("data:")){
+            img.src = src;
+        }
+
+        // 💡 system bouquet
+        else{
+            img.src = "images/bouquets/" + src + ".webp";
+        }
+
+        img.onload = () => {
+            img.style.display = "block";
+        };
+
+        img.onerror = () => {
+            console.log("Image not found:", src);
+            img.style.display = "none";
+        };
+    }
+
+    /* =========================
+       LINKS
+    ========================= */
+
+    const yt = document.getElementById("yt");
+    const ym = document.getElementById("ym");
+
+    if(data.y){
+        yt.href = data.y;
+    } else {
+        yt.style.display = "none";
+    }
+
+    if(data.m){
+        ym.href = data.m;
+    } else {
+        ym.style.display = "none";
+    }
+}
+
+/* =========================
+   INIT
+========================= */
+
+window.addEventListener("load", loadGift);
