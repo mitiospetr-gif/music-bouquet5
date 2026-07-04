@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Music Bouquet v9</title>
+<title>Music Bouquet v10</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
@@ -14,143 +14,39 @@
 
 <header class="header">
     <h1>🌸 Music Bouquet</h1>
-    <p>Создай музыкальный подарок</p>
+    <p>Создай подарок</p>
 </header>
 
-<!-- 💐 BOUQUETS -->
 <div class="bouquet-grid">
-
-    <div class="bouquet" data-bouquet="classic1">
-        <img src="images/bouquets/classic1.webp">
-    </div>
-
-    <div class="bouquet" data-bouquet="classic2">
-        <img src="images/bouquets/classic2.webp">
-    </div>
-
-    <div class="bouquet" data-bouquet="elegant1">
-        <img src="images/bouquets/elegant1.webp">
-    </div>
-
-    <div class="bouquet" data-bouquet="elegant2">
-        <img src="images/bouquets/elegant2.webp">
-    </div>
-
-    <div class="bouquet" data-bouquet="romantic1">
-        <img src="images/bouquets/romantic1.webp">
-    </div>
-
-    <div class="bouquet" data-bouquet="romantic2">
-        <img src="images/bouquets/romantic2.webp">
-    </div>
-
+    <div class="bouquet" data-bouquet="classic1"><img src="images/bouquets/classic1.webp"></div>
+    <div class="bouquet" data-bouquet="classic2"><img src="images/bouquets/classic2.webp"></div>
+    <div class="bouquet" data-bouquet="elegant1"><img src="images/bouquets/elegant1.webp"></div>
+    <div class="bouquet" data-bouquet="elegant2"><img src="images/bouquets/elegant2.webp"></div>
+    <div class="bouquet" data-bouquet="romantic1"><img src="images/bouquets/romantic1.webp"></div>
+    <div class="bouquet" data-bouquet="romantic2"><img src="images/bouquets/romantic2.webp"></div>
 </div>
 
-<!-- 📝 FORM -->
 <div class="form">
 
-    <input id="title" placeholder="Название трека">
-    <input id="author" placeholder="Автор">
-    <textarea id="text" placeholder="Сообщение"></textarea>
+<input id="title" placeholder="Название">
+<input id="author" placeholder="Автор">
+<textarea id="text" placeholder="Сообщение"></textarea>
 
-    <input id="youtube" placeholder="YouTube ссылка">
-    <input id="yandex" placeholder="Яндекс Музыка">
+<input id="youtube" placeholder="YouTube">
+<input id="yandex" placeholder="Яндекс">
 
-    <input type="file" id="fileInput">
+<input type="file" id="fileInput">
 
-    <button id="createBtn">✨ Создать</button>
-    <button id="copyBtn">📋 Скопировать ссылку</button>
+<button id="createBtn">Создать</button>
+<button id="copyBtn">Скопировать</button>
 
-    <p id="result"></p>
+<p id="result"></p>
 
 </div>
 
 </div>
 
 <script src="app.js"></script>
-
-<script>
-/* =========================
-   STATE
-========================= */
-
-let selectedBouquet = null;
-let uploadedImage = null;
-
-/* =========================
-   BOUQUET SELECT
-========================= */
-
-document.querySelectorAll(".bouquet").forEach(el => {
-    el.addEventListener("click", () => {
-
-        document.querySelectorAll(".bouquet")
-            .forEach(b => b.classList.remove("active"));
-
-        el.classList.add("active");
-
-        selectedBouquet = el.dataset.bouquet;
-
-        console.log("Bouquet selected:", selectedBouquet);
-    });
-});
-
-/* =========================
-   FILE UPLOAD (BASE64)
-========================= */
-
-document.getElementById("fileInput").addEventListener("change", (e) => {
-
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = (ev) => {
-        uploadedImage = ev.target.result;
-        console.log("Image loaded");
-    };
-
-    reader.readAsDataURL(file);
-});
-
-/* =========================
-   CREATE LINK
-========================= */
-
-document.getElementById("createBtn").onclick = () => {
-
-    const data = {
-        t: document.getElementById("title").value,
-        a: document.getElementById("author").value,
-        x: document.getElementById("text").value,
-        y: document.getElementById("youtube").value,
-        m: document.getElementById("yandex").value,
-
-        // 💐 priority: uploaded image > bouquet
-        i: uploadedImage ? uploadedImage : selectedBouquet
-    };
-
-    const encoded = btoa(encodeURIComponent(JSON.stringify(data)))
-        .replace(/\+/g,"-")
-        .replace(/\//g,"_")
-        .replace(/=/g,"");
-
-    const link = location.origin + "/gift.html#" + encoded;
-
-    document.getElementById("result").textContent = link;
-    window.generatedLink = link;
-};
-
-/* =========================
-   COPY LINK
-========================= */
-
-document.getElementById("copyBtn").onclick = async () => {
-    await navigator.clipboard.writeText(window.generatedLink || "");
-    alert("Ссылка скопирована");
-};
-</script>
 
 </body>
 </html>

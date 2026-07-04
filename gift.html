@@ -3,53 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Gift</title>
+<title>Gift</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="gift-page">
 
-<div class="gift-container">
+<div class="gift-card">
 
-    <div class="gift-card">
+<div class="bouquet-wrapper">
+<img id="img">
+</div>
 
-        <!-- 💐 IMAGE -->
-        <div class="bouquet-wrapper">
-            <img id="img" class="bouquet-image" src="">
-        </div>
+<div class="gift-content">
 
-        <!-- 💛 CONTENT -->
-        <div class="gift-content">
+<h2>Для тебя 💛</h2>
+<p id="text"></p>
+<h3 id="title"></h3>
+<p id="author"></p>
 
-            <h2 class="greeting-title">Для тебя 💛</h2>
-
-            <p id="text" class="greeting-text"></p>
-
-            <h3 id="title" class="track-name"></h3>
-
-            <div class="links-section">
-
-                <a id="yt" class="btn-platform youtube" target="_blank">
-                    ▶ YouTube
-                </a>
-
-                <a id="ym" class="btn-platform yandex" target="_blank">
-                    🎵 Яндекс Музыка
-                </a>
-
-            </div>
-
-            <p id="author" class="author-text"></p>
-
-        </div>
-
-    </div>
+<div class="links-section">
+<a id="yt" class="btn-platform youtube">YouTube</a>
+<a id="ym" class="btn-platform yandex">Яндекс</a>
+</div>
 
 </div>
 
-<!-- JS ENGINE -->
+</div>
+
 <script src="app.js"></script>
+
+<script>
+function decode(str){
+    const pad = '='.repeat((4-str.length%4)%4);
+    return JSON.parse(decodeURIComponent(atob((str+pad).replace(/-/g,'+').replace(/_/g,'/'))));
+}
+
+const data = decode(location.hash.slice(1));
+
+text.textContent = data.x || "";
+title.textContent = data.t || "";
+author.textContent = data.a || "";
+
+if(data.i){
+    img.src = data.i.startsWith("data:")
+    ? data.i
+    : "images/bouquets/"+data.i+".webp";
+}
+
+if(data.y) yt.href=data.y; else yt.style.display="none";
+if(data.m) ym.href=data.m; else ym.style.display="none";
+</script>
 
 </body>
 </html>
