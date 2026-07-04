@@ -1,7 +1,6 @@
 ﻿let selectedBouquet = null;
 let userImages = JSON.parse(localStorage.getItem("userImages") || "[]");
 
-
 /* 💐 выбор букета */
 window.addEventListener("DOMContentLoaded", () => {
 
@@ -23,18 +22,21 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* 📁 галерея */
+/* 📁 загрузка из галереи (BASE64) */
 const fileInput = document.getElementById("fileInput");
 
 if (fileInput) {
     fileInput.addEventListener("change", (e) => {
 
         [...e.target.files].forEach(file => {
+
             const reader = new FileReader();
 
             reader.onload = (ev) => {
+
                 userImages.push(ev.target.result);
                 localStorage.setItem("userImages", JSON.stringify(userImages));
+
             };
 
             reader.readAsDataURL(file);
@@ -44,27 +46,7 @@ if (fileInput) {
 }
 
 
-/* ☁️ DROPBOX FIX (100% рабочий) */
-function fixDropbox(url) {
-    if (!url) return "";
-
-    if (!url.includes("dropbox.com")) return url;
-
-    try {
-        const u = new URL(url);
-
-        // удаляем параметры
-        const path = u.pathname;
-
-        return "https://dl.dropboxusercontent.com" + path;
-
-    } catch (e) {
-        return url;
-    }
-}
-
-
-/* 🔗 encode */
+/* 🔗 SHARE LINK (без внешних сервисов) */
 function createShareLink(data) {
 
     const clean = {};
@@ -75,15 +57,12 @@ function createShareLink(data) {
     if (data.youtube) clean.y = data.youtube;
     if (data.yandex) clean.m = data.yandex;
 
-    // 💐 приоритет
+    /* 💐 IMAGE PRIORITY */
     if (data.image) {
-        clean.i = data.image;
-    }
-    else if (data.imageUrl) {
-        clean.i = fixDropbox(data.imageUrl);
+        clean.i = data.image; // системный букет
     }
     else if (userImages.length > 0) {
-        clean.i = userImages[userImages.length - 1];
+        clean.i = userImages[userImages.length - 1]; // base64
     }
 
     const encoded = btoa(encodeURIComponent(JSON.stringify(clean)))
@@ -95,7 +74,7 @@ function createShareLink(data) {
 }
 
 
-/* ✨ create */
+/* ✨ CREATE */
 document.getElementById("createBtn").onclick = () => {
 
     const data = {
@@ -104,8 +83,7 @@ document.getElementById("createBtn").onclick = () => {
         text: document.getElementById("text")?.value || "",
         youtube: document.getElementById("youtube")?.value || "",
         yandex: document.getElementById("yandex")?.value || "",
-        image: selectedBouquet || null,
-        imageUrl: document.getElementById("dropboxInput")?.value || ""
+        image: selectedBouquet || null
     };
 
     const link = createShareLink(data);
@@ -115,12 +93,8 @@ document.getElementById("createBtn").onclick = () => {
 };
 
 
-/* 📋 copy */
+/* 📋 COPY */
 document.getElementById("copyBtn").onclick = async () => {
-    try {
-        await navigator.clipboard.writeText(window.generatedLink || "");
-        alert("Ссылка скопирована");
-    } catch (e) {
-        alert("Ошибка копирования");
-    }
+    await navigator.clipboard.writeText(window.generatedLink || "");
+    alert("Ссылка скопирована");
 };
