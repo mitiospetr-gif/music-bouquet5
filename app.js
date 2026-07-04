@@ -22,7 +22,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* 📁 загрузка из галереи */
+/* 📁 загрузка галереи */
 const fileInput = document.getElementById("fileInput");
 
 if (fileInput) {
@@ -43,42 +43,62 @@ if (fileInput) {
 }
 
 
-/* ☁️ dropbox fix */
-function fixDropbox(url){
-    if(!url) return "";
-    if(url.includes("dropbox")){
-        return url.replace("?dl=0","?raw=1");
+/* ☁️ DROPBOX FIX (ВАЖНО) */
+function fixDropbox(url) {
+    if (!url) return "";
+
+    if (!url.includes("dropbox.com")) return url;
+
+    // убираем параметры
+    const clean = url.split("?")[0];
+
+    // scl/fi формат (новый Dropbox)
+    if (clean.includes("scl/fi")) {
+        return clean.replace(
+            "www.dropbox.com",
+            "dl.dropboxusercontent.com"
+        );
     }
+
+    // старый формат
+    if (url.includes("dl=0")) {
+        return url.replace("dl=0", "raw=1");
+    }
+
     return url;
 }
 
 
 /* 🔗 encode */
-function createShareLink(data){
+function createShareLink(data) {
 
     const clean = {};
 
-    if(data.title) clean.t = data.title;
-    if(data.author) clean.a = data.author;
-    if(data.text) clean.x = data.text;
-    if(data.youtube) clean.y = data.youtube;
-    if(data.yandex) clean.m = data.yandex;
+    if (data.title) clean.t = data.title;
+    if (data.author) clean.a = data.author;
+    if (data.text) clean.x = data.text;
+    if (data.youtube) clean.y = data.youtube;
+    if (data.yandex) clean.m = data.yandex;
 
-    // 💐 приоритет изображения
-    if(data.image){
+    // 💐 приоритет изображения:
+    // 1. системный букет
+    // 2. dropbox/url
+    // 3. галерея (localStorage)
+
+    if (data.image) {
         clean.i = data.image;
     }
-    else if(data.imageUrl){
+    else if (data.imageUrl) {
         clean.i = fixDropbox(data.imageUrl);
     }
-    else if(userImages.length){
+    else if (userImages.length > 0) {
         clean.i = userImages[userImages.length - 1];
     }
 
     const encoded = btoa(encodeURIComponent(JSON.stringify(clean)))
-        .replace(/\+/g,"-")
-        .replace(/\//g,"_")
-        .replace(/=/g,"");
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=/g, "");
 
     return location.origin + "/gift.html#" + encoded;
 }
