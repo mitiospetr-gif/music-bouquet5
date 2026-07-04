@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gift</title>
 
-<link rel="stylesheet" href="style.css">
-
 <style>
 body{
     margin:0;
@@ -32,18 +30,19 @@ body{
     width:100%;
     border-radius:12px;
     margin-bottom:15px;
-    display:block;
     min-height:200px;
+    object-fit:cover;
     background:rgba(255,255,255,0.05);
+    display:none; /* важно: старт скрыт */
 }
 
 a{
     display:block;
     margin:8px 0;
     color:#00c6ff;
+    text-decoration:none;
 }
 </style>
-
 </head>
 
 <body>
@@ -65,7 +64,6 @@ a{
 
 <script>
 
-/* 🔥 safe decode (НЕ ПАДАЕТ НИКОГДА) */
 function safeDecode(str){
     try{
         const pad = '='.repeat((4 - str.length % 4) % 4);
@@ -74,7 +72,7 @@ function safeDecode(str){
                 atob((str + pad).replace(/-/g,'+').replace(/_/g,'/'))
             )
         );
-    }catch(e){
+    } catch(e){
         console.log("Decode error:", e);
         return null;
     }
@@ -89,32 +87,12 @@ function loadGift(){
         return;
     }
 
-    const img = document.getElementById("bouquetImage");
-
-    /* 💐 IMAGE HANDLER */
-    if(data.i){
-
-        if(data.i.startsWith("http") || data.i.startsWith("data:")){
-            img.src = data.i;
-        } else {
-            img.src = "images/bouquets/" + data.i + ".webp";
-        }
-
-        img.onerror = () => {
-            img.style.display = "none";
-            console.log("Image failed:", data.i);
-        };
-
-    } else {
-        img.style.display = "none";
-    }
-
-    /* TEXT */
+    // TEXT
     document.getElementById("greetingText").textContent = data.x || "";
     document.getElementById("trackName").textContent = data.t || "";
     document.getElementById("authorText").textContent = data.a || "";
 
-    /* LINKS */
+    // LINKS
     const yt = document.getElementById("youtubeBtn");
     const ym = document.getElementById("yandexBtn");
 
@@ -129,9 +107,40 @@ function loadGift(){
     } else {
         ym.style.display = "none";
     }
+
+    // IMAGE (СТАБИЛЬНЫЙ ФИКС)
+    const img = document.getElementById("bouquetImage");
+
+    // reset state
+    img.style.display = "none";
+    img.removeAttribute("src");
+
+    setTimeout(() => {
+
+        if(!data.i) return;
+
+        let src = "";
+
+        if(data.i.startsWith("http") || data.i.startsWith("data:")){
+            src = data.i;
+        } else {
+            src = "images/bouquets/" + data.i + ".webp";
+        }
+
+        img.onload = () => {
+            img.style.display = "block";
+        };
+
+        img.onerror = () => {
+            console.log("Image failed:", src);
+            img.style.display = "none";
+        };
+
+        img.src = src;
+
+    }, 50);
 }
 
-/* 🚀 INIT SAFE */
 window.addEventListener("DOMContentLoaded", loadGift);
 
 </script>
