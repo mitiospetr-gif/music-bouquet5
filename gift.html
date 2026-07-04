@@ -47,19 +47,28 @@ function loadGift(){
 
     const img = document.getElementById("bouquetImage");
 
-    if(data.i){
-        if(data.i.startsWith("http") || data.i.startsWith("data:")){
+    if (data.i) {
+
+        const isImage =
+            data.i.startsWith("http") ||
+            data.i.startsWith("data:");
+
+        if (isImage) {
             img.src = data.i;
         } else {
             img.src = "images/bouquets/" + data.i + ".webp";
         }
+
+        img.onerror = () => {
+            img.style.display = "none";
+        };
     }
 
     const yt = document.getElementById("youtubeBtn");
     const ym = document.getElementById("yandexBtn");
 
-    if(data.y) yt.href = data.y; else yt.style.display="none";
-    if(data.m) ym.href = data.m; else ym.style.display="none";
+    if (data.y) yt.href = data.y; else yt.style.display="none";
+    if (data.m) ym.href = data.m; else ym.style.display="none";
 }
 
 window.onload = loadGift;
