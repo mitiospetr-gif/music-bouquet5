@@ -1,0 +1,69 @@
+﻿﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="gift-page">
+
+<div class="gift-container">
+
+    <div class="gift-card">
+
+        <img id="bouquetImage" class="bouquet-image">
+
+        <h2>Для тебя 💛</h2>
+
+        <p id="greetingText"></p>
+        <h3 id="trackName"></h3>
+        <p id="authorText"></p>
+
+        <div>
+            <a id="youtubeBtn" target="_blank">▶ YouTube</a>
+            <a id="yandexBtn" target="_blank">💿 Яндекс Музыка</a>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function decode(str){
+    const pad = '='.repeat((4 - str.length % 4) % 4);
+    return JSON.parse(decodeURIComponent(atob((str+pad).replace(/-/g,'+').replace(/_/g,'/'))));
+}
+
+function loadGift(){
+
+    const data = decode(location.hash.slice(1));
+
+    document.getElementById("greetingText").textContent = data.x || "";
+    document.getElementById("trackName").textContent = data.t || "";
+    document.getElementById("authorText").textContent = data.a || "";
+
+    const img = document.getElementById("bouquetImage");
+
+    if(data.i){
+        if(data.i.startsWith("http") || data.i.startsWith("data:")){
+            img.src = data.i;
+        } else {
+            img.src = "images/bouquets/" + data.i + ".webp";
+        }
+    }
+
+    const yt = document.getElementById("youtubeBtn");
+    const ym = document.getElementById("yandexBtn");
+
+    if(data.y) yt.href = data.y; else yt.style.display="none";
+    if(data.m) ym.href = data.m; else ym.style.display="none";
+}
+
+window.onload = loadGift;
+</script>
+
+</body>
+</html>

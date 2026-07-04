@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Bouquet v8.4 FIX+</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dark-theme">
+
+<div class="container">
+
+<header class="header">
+    <h1>🌸 Music Bouquet</h1>
+    <p>Создай музыкальный подарок</p>
+</header>
+
+<!-- 💐 СИСТЕМНЫЕ БУКЕТЫ -->
+<div class="bouquet-grid">
+
+    <div class="bouquet" data-bouquet="classic1"><img src="images/bouquets/classic1.webp"></div>
+    <div class="bouquet" data-bouquet="classic2"><img src="images/bouquets/classic2.webp"></div>
+    <div class="bouquet" data-bouquet="elegant1"><img src="images/bouquets/elegant1.webp"></div>
+    <div class="bouquet" data-bouquet="elegant2"><img src="images/bouquets/elegant2.webp"></div>
+    <div class="bouquet" data-bouquet="romantic1"><img src="images/bouquets/romantic1.webp"></div>
+    <div class="bouquet" data-bouquet="romantic2"><img src="images/bouquets/romantic2.webp"></div>
+
+</div>
+
+<!-- 📝 ФОРМА -->
+<div class="form">
+
+    <input id="title" placeholder="Название трека">
+    <input id="author" placeholder="Автор">
+    <textarea id="text" placeholder="Сообщение"></textarea>
+
+    <input id="youtube" placeholder="YouTube ссылка">
+    <input id="yandex" placeholder="Яндекс Музыка">
+
+    <!-- 📁 галерея -->
+    <input type="file" id="fileInput" multiple>
+
+    <!-- ☁️ dropbox / url -->
+    <input id="dropboxInput" placeholder="Dropbox или ссылка на изображение">
+
+    <button id="createBtn">✨ Создать</button>
+    <button id="copyBtn">📋 Скопировать ссылку</button>
+
+    <p id="result"></p>
+
+</div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
