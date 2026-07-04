@@ -6,54 +6,95 @@
 <title>Gift</title>
 
 <link rel="stylesheet" href="style.css">
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:#0f172a;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.gift-card{
+    width:90%;
+    max-width:420px;
+    background:rgba(255,255,255,0.08);
+    padding:20px;
+    border-radius:16px;
+    text-align:center;
+}
+
+#bouquetImage{
+    width:100%;
+    border-radius:12px;
+    margin-bottom:15px;
+    display:block;
+    min-height:200px;
+    background:rgba(255,255,255,0.05);
+}
+
+a{
+    display:block;
+    margin:8px 0;
+    color:#00c6ff;
+}
+</style>
+
 </head>
 
-<body class="gift-page">
+<body>
 
-<div class="gift-container">
+<div class="gift-card">
 
-    <div class="gift-card">
+    <img id="bouquetImage">
 
-        <img id="bouquetImage" class="bouquet-image">
+    <h2>Для тебя 💛</h2>
 
-        <h2>Для тебя 💛</h2>
+    <p id="greetingText"></p>
+    <h3 id="trackName"></h3>
+    <p id="authorText"></p>
 
-        <p id="greetingText"></p>
-        <h3 id="trackName"></h3>
-        <p id="authorText"></p>
-
-        <div>
-            <a id="youtubeBtn" target="_blank">▶ YouTube</a>
-            <a id="yandexBtn" target="_blank">💿 Яндекс Музыка</a>
-        </div>
-
-    </div>
+    <a id="youtubeBtn" target="_blank">▶ YouTube</a>
+    <a id="yandexBtn" target="_blank">💿 Яндекс Музыка</a>
 
 </div>
 
 <script>
-function decode(str){
-    const pad = '='.repeat((4 - str.length % 4) % 4);
-    return JSON.parse(decodeURIComponent(atob((str+pad).replace(/-/g,'+').replace(/_/g,'/'))));
+
+/* 🔥 safe decode (НЕ ПАДАЕТ НИКОГДА) */
+function safeDecode(str){
+    try{
+        const pad = '='.repeat((4 - str.length % 4) % 4);
+        return JSON.parse(
+            decodeURIComponent(
+                atob((str + pad).replace(/-/g,'+').replace(/_/g,'/'))
+            )
+        );
+    }catch(e){
+        console.log("Decode error:", e);
+        return null;
+    }
 }
 
 function loadGift(){
 
-    const data = decode(location.hash.slice(1));
+    const data = safeDecode(location.hash.slice(1));
 
-    document.getElementById("greetingText").textContent = data.x || "";
-    document.getElementById("trackName").textContent = data.t || "";
-    document.getElementById("authorText").textContent = data.a || "";
+    if(!data){
+        document.body.innerHTML = "<h2 style='text-align:center'>❌ Подарок не найден</h2>";
+        return;
+    }
 
     const img = document.getElementById("bouquetImage");
 
-    if (data.i) {
+    /* 💐 IMAGE HANDLER */
+    if(data.i){
 
-        const isImage =
-            data.i.startsWith("http") ||
-            data.i.startsWith("data:");
-
-        if (isImage) {
+        if(data.i.startsWith("http") || data.i.startsWith("data:")){
             img.src = data.i;
         } else {
             img.src = "images/bouquets/" + data.i + ".webp";
@@ -61,17 +102,38 @@ function loadGift(){
 
         img.onerror = () => {
             img.style.display = "none";
+            console.log("Image failed:", data.i);
         };
+
+    } else {
+        img.style.display = "none";
     }
 
+    /* TEXT */
+    document.getElementById("greetingText").textContent = data.x || "";
+    document.getElementById("trackName").textContent = data.t || "";
+    document.getElementById("authorText").textContent = data.a || "";
+
+    /* LINKS */
     const yt = document.getElementById("youtubeBtn");
     const ym = document.getElementById("yandexBtn");
 
-    if (data.y) yt.href = data.y; else yt.style.display="none";
-    if (data.m) ym.href = data.m; else ym.style.display="none";
+    if(data.y){
+        yt.href = data.y;
+    } else {
+        yt.style.display = "none";
+    }
+
+    if(data.m){
+        ym.href = data.m;
+    } else {
+        ym.style.display = "none";
+    }
 }
 
-window.onload = loadGift;
+/* 🚀 INIT SAFE */
+window.addEventListener("DOMContentLoaded", loadGift);
+
 </script>
 
 </body>
