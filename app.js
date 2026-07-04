@@ -1,6 +1,7 @@
 ﻿let selectedBouquet = null;
 let userImages = JSON.parse(localStorage.getItem("userImages") || "[]");
 
+
 /* 💐 выбор букета */
 window.addEventListener("DOMContentLoaded", () => {
 
@@ -22,7 +23,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* 📁 загрузка галереи */
+/* 📁 галерея */
 const fileInput = document.getElementById("fileInput");
 
 if (fileInput) {
@@ -43,29 +44,23 @@ if (fileInput) {
 }
 
 
-/* ☁️ DROPBOX FIX (ВАЖНО) */
+/* ☁️ DROPBOX FIX (100% рабочий) */
 function fixDropbox(url) {
     if (!url) return "";
 
     if (!url.includes("dropbox.com")) return url;
 
-    // убираем параметры
-    const clean = url.split("?")[0];
+    try {
+        const u = new URL(url);
 
-    // scl/fi формат (новый Dropbox)
-    if (clean.includes("scl/fi")) {
-        return clean.replace(
-            "www.dropbox.com",
-            "dl.dropboxusercontent.com"
-        );
+        // удаляем параметры
+        const path = u.pathname;
+
+        return "https://dl.dropboxusercontent.com" + path;
+
+    } catch (e) {
+        return url;
     }
-
-    // старый формат
-    if (url.includes("dl=0")) {
-        return url.replace("dl=0", "raw=1");
-    }
-
-    return url;
 }
 
 
@@ -80,11 +75,7 @@ function createShareLink(data) {
     if (data.youtube) clean.y = data.youtube;
     if (data.yandex) clean.m = data.yandex;
 
-    // 💐 приоритет изображения:
-    // 1. системный букет
-    // 2. dropbox/url
-    // 3. галерея (localStorage)
-
+    // 💐 приоритет
     if (data.image) {
         clean.i = data.image;
     }
