@@ -57,7 +57,7 @@ body{
 
 <script>
 
-/* 🔐 decode */
+/* decode */
 function decode(str){
     try{
         const pad = '='.repeat((4 - str.length % 4) % 4);
@@ -67,6 +67,7 @@ function decode(str){
             )
         );
     }catch(e){
+        console.log(e);
         return null;
     }
 }
@@ -86,15 +87,26 @@ function load(){
 
     const img = document.getElementById("img");
 
-    /* 💐 SYSTEM + BASE64 ONLY */
     let src = data.i || "";
 
     if(src){
 
-        img.onload = () => img.style.display = "block";
-        img.onerror = () => img.style.display = "none";
+        // 💐 base64 (галерея)
+        if(src.startsWith("data:")){
+            img.src = src;
+        }
 
-        img.src = src;
+        // 💐 системные букеты
+        else{
+            src = "images/bouquets/" + src + ".webp";
+            img.src = src;
+        }
+
+        img.onload = () => img.style.display = "block";
+        img.onerror = () => {
+            console.log("Image not found:", src);
+            img.style.display = "none";
+        };
     }
 
     const yt = document.getElementById("yt");
